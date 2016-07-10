@@ -1,6 +1,6 @@
+#!/usr/bin/python
 #coding=gbk
 
-__author__ = 'CQC'
 # -*- coding:utf-8 -*-
  
 import os
@@ -410,11 +410,16 @@ class PdfHtmlExtractor(object):
                     numFields+=1
         print "fieldsName:",fieldsName
         print "fieldsValue:",fieldsValue
-        fieldPrimaryKeyIndex = dm.insertStockFieldsTable("300412",sheetName, numFields, fieldsName)
-        dm.insertStockSheetTable("300412", fieldPrimaryKeyIndex,sheetName, numFields, fieldsValue)
-
-        #dm.createDataTable(recordsNames)
-        #dm.insertDataInTable(fieldsName, datas)  
+        fieldPrimaryKeyIndex = dm.insertStockFieldsTable("300413",sheetName, numFields, fieldsName)
+        dm.insertStockSheetTable("300413", fieldPrimaryKeyIndex,sheetName, numFields, fieldsValue)
+        
+    def getStockInfo(self, stockCode, sheetName):
+        
+        dm=dataBaseManager()
+        dm.openDataBase()
+        print "==========================start======================================"
+        #dm.queryStockDataTable("300413",sheetName)
+        print "==========================end======================================"
     
     def clearTableList(self):
         #一个段落的表格写入数据库后清理tableList
@@ -434,17 +439,16 @@ if __name__ == '__main__':
     pdfhtmlextact.getFetchTablePageLists()
     pdfhtmlextact.fetchTableInParagraph(pdfhtmlextact.paragraphPageList1)
     pdfhtmlextact.mergeTableList('balanceSheet')
-    #pdfhtmlextact.writeTableinDB()
     pdfhtmlextact.clearTableList()
     
-    #pdfhtmlextact.fetchTableInParagraph(pdfhtmlextact.paragraphPageList2)
-    #pdfhtmlextact.mergeTableList()
-    #pdfhtmlextact.writeTableinDB()
-    #pdfhtmlextact.clearTableList()
+    pdfhtmlextact.fetchTableInParagraph(pdfhtmlextact.paragraphPageList2)
+    pdfhtmlextact.mergeTableList('profit')
+    pdfhtmlextact.clearTableList()
     
-    #pdfhtmlextact.fetchTableInParagraph(pdfhtmlextact.paragraphPageList3)
-    #pdfhtmlextact.mergeTableList()
-    #pdfhtmlextact.writeTableinDB()
-    #pdfhtmlextact.clearTableList()
+    pdfhtmlextact.fetchTableInParagraph(pdfhtmlextact.paragraphPageList3)
+    pdfhtmlextact.mergeTableList('cashFlow')
+    pdfhtmlextact.clearTableList()
+    
+    pdfhtmlextact.getStockInfo('300412','balanceSheet')
     
     
