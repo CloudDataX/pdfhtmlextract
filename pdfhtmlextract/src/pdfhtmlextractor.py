@@ -10,6 +10,7 @@ import re
 from table import Table
 from logger import Logger
 import string
+from dataBaseManager import dataBaseManager
 
 class PdfHtmlExtractor(object):
     htmlfile = ''
@@ -379,13 +380,41 @@ class PdfHtmlExtractor(object):
         
         print "tableList:",len(self.tableList)
     
-    def mergeTableList(self):
-        #暂时没有添加判断各表是否有扩展，需要把表连起来的功能。默认tableList里的表都是这一段的完整表
-        for table in range(0, len(self.tableList)):
-            for row in range(0,self.tableList[table].rowNum):
-                for column in range(0,self.tableList[table].columnNum):
-                    self.tableList[table].getCellValue(row,column)
-        return
+    def stringTof(self,src):
+        print "stringTof:src=",src
+        if(src.strip()==''):
+            return 
+        src = src.replace(',', '')
+        if(-1 != src.find('%')):
+            src = src.replace('%', '')
+            return (string.atof(src)/100)
+        return string.atof(src)
+    
+    def mergeTableList(self,sheetName):
+        
+        dm=dataBaseManager()
+        dm.openDataBase()
+        dm.displayDataBase()
+        
+        fieldsName=[]
+        fieldsValue=[]
+        #datas=["600004","","111","222","333"]
+        
+        numFields = 0;
+        
+        for tableIndex in range(0, len(self.tableList)):
+            for row in range(1,self.tableList[tableIndex].rowNum):
+                    fieldsName.append(self.tableList[tableIndex].getCellValue(row,0) + u"_%d" % numFields)  
+                    fieldsValue.append( self.stringTof(self.tableList[tableIndex].getCellValue(row,1)) )                    
+                    print "tableIndex,row,col0 value:",tableIndex,row,self.tableList[tableIndex].getCellValue(row,0),"col1 value:",self.tableList[tableIndex].getCellValue(row,1)
+                    numFields+=1
+        print "fieldsName:",fieldsName
+        print "fieldsValue:",fieldsValue
+        fieldPrimaryKeyIndex = dm.insertStockFieldsTable("300412",sheetName, numFields, fieldsName)
+        dm.insertStockSheetTable("300412", fieldPrimaryKeyIndex,sheetName, numFields, fieldsValue)
+
+        #dm.createDataTable(recordsNames)
+        #dm.insertDataInTable(fieldsName, datas)  
     
     def clearTableList(self):
         #一个段落的表格写入数据库后清理tableList
@@ -404,18 +433,18 @@ if __name__ == '__main__':
     pdfhtmlextact = PdfHtmlExtractor('../2014.html')
     pdfhtmlextact.getFetchTablePageLists()
     pdfhtmlextact.fetchTableInParagraph(pdfhtmlextact.paragraphPageList1)
-    pdfhtmlextact.mergeTableList()
-    pdfhtmlextact.writeTableinDB()
+    pdfhtmlextact.mergeTableList('balanceSheet')
+    #pdfhtmlextact.writeTableinDB()
     pdfhtmlextact.clearTableList()
     
-    pdfhtmlextact.fetchTableInParagraph(pdfhtmlextact.paragraphPageList2)
-    pdfhtmlextact.mergeTableList()
-    pdfhtmlextact.writeTableinDB()
-    pdfhtmlextact.clearTableList()
+    #pdfhtmlextact.fetchTableInParagraph(pdfhtmlextact.paragraphPageList2)
+    #pdfhtmlextact.mergeTableList()
+    #pdfhtmlextact.writeTableinDB()
+    #pdfhtmlextact.clearTableList()
     
-    pdfhtmlextact.fetchTableInParagraph(pdfhtmlextact.paragraphPageList3)
-    pdfhtmlextact.mergeTableList()
-    pdfhtmlextact.writeTableinDB()
-    pdfhtmlextact.clearTableList()
+    #pdfhtmlextact.fetchTableInParagraph(pdfhtmlextact.paragraphPageList3)
+    #pdfhtmlextact.mergeTableList()
+    #pdfhtmlextact.writeTableinDB()
+    #pdfhtmlextact.clearTableList()
     
     
