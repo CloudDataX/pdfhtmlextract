@@ -13,7 +13,8 @@ class dataBaseManager():
         self.cursor = self.conn.cursor()
         dbName="stockData"
         #cursor.execute("create database %s" % dbName)
-        self.cursor.execute("use %s" % dbName)
+        self.cursor.execute('create database if not exists %s' % dbName)
+        self.conn.select_db(dbName)
         
     def displayDataBase(self):
         self.cursor.execute("show databases")
@@ -91,7 +92,26 @@ class dataBaseManager():
         print "step2:createStockSheetTable sqlStr:",sqlStr
         self.cursor.execute(sqlStr)
         self.conn.commit()
-    
+    def queryStockDataTable(self, stockId, sheetName): 
+        tableName=stockId+"_"+sheetName
+        fieldTableName=stockId+"_"+sheetName+"Fields"
+        sqlstr="select * from "+tableName
+        #self.cursor.execute("SET NAMES 'gbk'")
+        count=self.cursor.execute(sqlstr)
+        print "count:",count
+        #重置游标位置，0,为偏移量，mode＝absolute | relative,默认为relative
+        self.cursor.scroll(0,mode='absolute')
+        #获取所有结果
+        results = self.cursor.fetchall()  
+        for r in results: 
+            fieldIndex = r[1]
+            sqlstrOfField="select * from "+fieldTableName+" where id="+str(fieldIndex)
+            countFields=self.cursor.execute(sqlstrOfField)
+            print "countFields:",countFields
+            resultField = self.cursor.fetchone()  
+            for i in range(1,100):
+                print resultField[i],r[i+1]       
+
     def insertDataInTable(self, recordsNames, datas):
         print "insertDataInTable:",datas[0]
         sqlStr="insert into stock"+recordsNames[0]+"(stockId"

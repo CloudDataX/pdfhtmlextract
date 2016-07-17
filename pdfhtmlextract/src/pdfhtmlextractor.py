@@ -403,7 +403,10 @@ class PdfHtmlExtractor(object):
         numFields = 0;
         
         for tableIndex in range(0, len(self.tableList)):
-            for row in range(1,self.tableList[tableIndex].rowNum):
+            startPos = 0
+            if (tableIndex==0):
+                startPos=1
+            for row in range(startPos,self.tableList[tableIndex].rowNum):
                     fieldsName.append(self.tableList[tableIndex].getCellValue(row,0) + u"_%d" % numFields)  
                     fieldsValue.append( self.stringTof(self.tableList[tableIndex].getCellValue(row,1)) )                    
                     print "tableIndex,row,col0 value:",tableIndex,row,self.tableList[tableIndex].getCellValue(row,0),"col1 value:",self.tableList[tableIndex].getCellValue(row,1)
@@ -418,7 +421,7 @@ class PdfHtmlExtractor(object):
         dm=dataBaseManager()
         dm.openDataBase()
         print "==========================start======================================"
-        #dm.queryStockDataTable("300413",sheetName)
+        dm.queryStockDataTable("300413",sheetName)
         print "==========================end======================================"
     
     def clearTableList(self):
