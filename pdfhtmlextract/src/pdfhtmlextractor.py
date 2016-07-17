@@ -390,7 +390,7 @@ class PdfHtmlExtractor(object):
             return (string.atof(src)/100)
         return string.atof(src)
     
-    def mergeTableList(self,sheetName):
+    def mergeTableList(self,stockcode,sheetName,dateStr):
         
         dm=dataBaseManager()
         dm.openDataBase()
@@ -413,15 +413,15 @@ class PdfHtmlExtractor(object):
                     numFields+=1
         print "fieldsName:",fieldsName
         print "fieldsValue:",fieldsValue
-        fieldPrimaryKeyIndex = dm.insertStockFieldsTable("300413",sheetName, numFields, fieldsName)
-        dm.insertStockSheetTable("300413", fieldPrimaryKeyIndex,sheetName, numFields, fieldsValue)
+        fieldPrimaryKeyIndex = dm.insertStockFieldsTable(stockcode,sheetName, numFields, fieldsName)
+        dm.insertStockSheetTable(stockcode, fieldPrimaryKeyIndex,sheetName, dateStr, numFields, fieldsValue)
         
     def getStockInfo(self, stockCode, sheetName):
         
         dm=dataBaseManager()
         dm.openDataBase()
         print "==========================start======================================"
-        dm.queryStockDataTable("300413",sheetName)
+        dm.queryStockDataTable(stockCode,sheetName)
         print "==========================end======================================"
     
     def clearTableList(self):
@@ -441,17 +441,17 @@ if __name__ == '__main__':
     pdfhtmlextact = PdfHtmlExtractor('../2014.html')
     pdfhtmlextact.getFetchTablePageLists()
     pdfhtmlextact.fetchTableInParagraph(pdfhtmlextact.paragraphPageList1)
-    pdfhtmlextact.mergeTableList('balanceSheet')
+    pdfhtmlextact.mergeTableList('600010','balanceSheet','2016-06-01')
     pdfhtmlextact.clearTableList()
     
     pdfhtmlextact.fetchTableInParagraph(pdfhtmlextact.paragraphPageList2)
-    pdfhtmlextact.mergeTableList('profit')
+    pdfhtmlextact.mergeTableList('600010','profit','2016-06-01')
     pdfhtmlextact.clearTableList()
     
     pdfhtmlextact.fetchTableInParagraph(pdfhtmlextact.paragraphPageList3)
-    pdfhtmlextact.mergeTableList('cashFlow')
+    pdfhtmlextact.mergeTableList('600010','cashFlow','2016-06-01')
     pdfhtmlextact.clearTableList()
     
-    pdfhtmlextact.getStockInfo('300412','balanceSheet')
+    pdfhtmlextact.getStockInfo('600010','balanceSheet')
     
     

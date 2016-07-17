@@ -67,12 +67,12 @@ class dataBaseManager():
         print "PrimaryKeyIndex:",str(PrimaryKeyIndex)
         return PrimaryKeyIndex
         
-    def insertStockSheetTable(self, stockId, primaryKeyOfFieldsTable, sheetName, numberFields, FieldsValue):
+    def insertStockSheetTable(self, stockId, primaryKeyOfFieldsTable, sheetName, dateStr, numberFields, FieldsValue):
         tableName=stockId+"_"+sheetName
         print "insertStockSheetTable:",tableName
         
         #create sheet table
-        sqlStr="create table if not exists "+ tableName + "(id int primary key auto_increment,fieldsIndex int not NULL"
+        sqlStr="create table if not exists "+ tableName + "(id int primary key auto_increment,fieldsIndex int not NULL,Date date not NULL"
         for i in range(0, self.MaxNumberOfFields):
             sqlStr = sqlStr +",field"+ str(i) +" double default NULL"
         sqlStr=sqlStr+")"
@@ -81,15 +81,15 @@ class dataBaseManager():
         
         #insert record into FieldsValue table  [id, FieldNamePrimary,field1,field2.....]
         sqlStr="insert into "+tableName+"("
-        FieldsStr="fieldsIndex"
-        needToInsertDataStr=str(primaryKeyOfFieldsTable)
+        FieldsStr="fieldsIndex,Date"
+        needToInsertDataStr=str(primaryKeyOfFieldsTable)+",'"+dateStr+"'"
         for i in range(0, numberFields):
             if(None != FieldsValue[i]):
                 FieldsStr           = FieldsStr + ",field" + str(i)
                 needToInsertDataStr = needToInsertDataStr + "," + str(FieldsValue[i])
         sqlStr = sqlStr + FieldsStr + ")"
         sqlStr = sqlStr + " values(" + needToInsertDataStr + ")"
-        print "step2:createStockSheetTable sqlStr:",sqlStr
+        print "step2:insertStockSheetTable sqlStr:",sqlStr
         self.cursor.execute(sqlStr)
         self.conn.commit()
     def queryStockDataTable(self, stockId, sheetName): 
@@ -98,19 +98,21 @@ class dataBaseManager():
         sqlstr="select * from "+tableName
         #self.cursor.execute("SET NAMES 'gbk'")
         count=self.cursor.execute(sqlstr)
+        results = self.cursor.fetchone()
+        print "sqlstr:",sqlstr
         print "count:",count
         #重置游标位置，0,为偏移量，mode＝absolute | relative,默认为relative
         self.cursor.scroll(0,mode='absolute')
         #获取所有结果
-        results = self.cursor.fetchall()  
+        results = self.cursor.fetchall()
         for r in results: 
             fieldIndex = r[1]
             sqlstrOfField="select * from "+fieldTableName+" where id="+str(fieldIndex)
             countFields=self.cursor.execute(sqlstrOfField)
-            print "countFields:",countFields
+            print "countFields:",countFields,"[0]:",r[0],",[1]:",r[1],",[2]:",r[2],",[3]:",r[3],",[4]:",r[4]
             resultField = self.cursor.fetchone()  
             for i in range(1,100):
-                print resultField[i],r[i+1]       
+                print resultField[i],r[i+2]       
 
     def insertDataInTable(self, recordsNames, datas):
         print "insertDataInTable:",datas[0]
