@@ -11,6 +11,11 @@ from table import Table
 from logger import Logger
 import string
 from dataBaseManager import dataBaseManager
+import json
+import datetime
+import time
+import os.path
+import platform
 
 class PdfHtmlExtractor(object):
     htmlfile = ''
@@ -432,26 +437,65 @@ class PdfHtmlExtractor(object):
     
     def writeTableinDB(self):
         #把一段里的表写到数据库内
-        return    
+        return
+    
+    def saveStockInfo(self, code, dateStr):    
+        self.getFetchTablePageLists()
+        self.fetchTableInParagraph(pdfhtmlextact.paragraphPageList1)
+        self.mergeTableList(code,'balanceSheet',dateStr)
+        self.pdfhtmlextact.clearTableList()
         
+        self.pdfhtmlextact.fetchTableInParagraph(pdfhtmlextact.paragraphPageList2)
+        self.pdfhtmlextact.mergeTableList(code,'profit',dateStr)
+        self.pdfhtmlextact.clearTableList()
+        
+        self.pdfhtmlextact.fetchTableInParagraph(pdfhtmlextact.paragraphPageList3)
+        self.pdfhtmlextact.mergeTableList(code,'cashFlow',dateStr)
+        self.pdfhtmlextact.clearTableList()
                    
     
     
 if __name__ == '__main__':
-    pdfhtmlextact = PdfHtmlExtractor('../2014.html')
-    pdfhtmlextact.getFetchTablePageLists()
-    pdfhtmlextact.fetchTableInParagraph(pdfhtmlextact.paragraphPageList1)
-    pdfhtmlextact.mergeTableList('600010','balanceSheet','2016-06-01')
-    pdfhtmlextact.clearTableList()
     
-    pdfhtmlextact.fetchTableInParagraph(pdfhtmlextact.paragraphPageList2)
-    pdfhtmlextact.mergeTableList('600010','profit','2016-06-01')
-    pdfhtmlextact.clearTableList()
     
-    pdfhtmlextact.fetchTableInParagraph(pdfhtmlextact.paragraphPageList3)
-    pdfhtmlextact.mergeTableList('600010','cashFlow','2016-06-01')
-    pdfhtmlextact.clearTableList()
+    pdfFilesSource='../stockreportlist1.json'
+    pdf2htmlEXTool=''
+    htmlPath=''
     
-    pdfhtmlextact.getStockInfo('600010','balanceSheet')
+    pdfFilesList=json.loads(open(pdfFilesSource, 'rb').read())
+    sysStr=platform.system()
+    for pdfFile in pdfFilesList['stockList']:
+        stockCode=pdfFile['secCode']
+        stockName=pdfFile['secName']
+        dateStr=pdfFile['announcementTime']        
+        announcementTitle=pdfFile['announcementTitle']
+        
+        if sysStr=="Windows":
+            relativePath="..\\"
+            pdfFilePath=relativePath+pdfFile['pdfPath'].replace('/','\\')
+            
+        else:
+            relativePath="../"
+            pdfFilePath=relativePath+pdfFile['pdfPath']
+            
+        htmlPath = os.path.splitext(pdfFilePath)[0]+".html"
+        outDestDir=" --dest-dir "+relativePath+"stockCode"
+        print stockCode,",",stockName,",",dateStr,",",announcementTitle
+        print pdfFilePath,",",htmlPath
+        
+        
+        #pdfFilePath="..\\000001\\平安银行2015年年度报告.pdf"
+        
+        cmdstr='..\\..\\pdf2htmlEX-win32-0.14.6-upx-with-poppler-data\pdf2htmlEX.exe ' + pdfFilePath.encode('GBK') + outDestDir
+        print cmdstr
+        #tmp_cmdstr = cmdstr.decode('utf8').encode('GBK')
+        #os.system(r'../../pdf2htmlEX-win32-0.14.6-upx-with-poppler-data/pdf2htmlEX.exe "%s"'% cmdstr)
+        os.system(cmdstr)
+        #pdfhtmlextact = PdfHtmlExtractor(htmlPath)
+        #pdfhtmlextact.saveStockInfo()
+
+   
+    
+    #pdfhtmlextact.getStockInfo('600010','balanceSheet')
     
     
